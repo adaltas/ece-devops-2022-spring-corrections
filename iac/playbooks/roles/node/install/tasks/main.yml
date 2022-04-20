@@ -1,0 +1,7 @@
+---
+- name: Download Node.js package
+  shell: curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+
+- name: Install Node.js
+  apt:
+    name: nodejs

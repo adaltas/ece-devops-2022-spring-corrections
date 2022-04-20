@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  # Do not pay attention to this parameter
+  if Vagrant.has_plugin?("vagrant-vbguest")
+    config.vm.provider :virtualbox do |vb|
+      config.vbguest.auto_update = false
+    end
+  end
+
+  # Define the gitlab_server VM
+  config.vm.define "userapi_server" do |server|
+    # Specify the Vagrant box to use
+    server.vm.box = "ubuntu/focal64"
+    # Specify the VM ip address
+    config.vm.network "forwarded_port", guest: 3000, host: 8080
+    # Specify the VM specs when using the Virtualbox provisioner
+    server.vm.provider "virtualbox" do |vb|
+      vb.name =  "userapi.server.local"
+      # VM RAM in MB
+      vb.memory = 2048
+      # VM CPUs
+      vb.cpus = 1
+    end
+    config.vm.provider "vmware_desktop" do |vmware|
+      vmware.vmx["memsize"] = "2048"
+      vmware.vmx["numvcpus"] = "1"
+    end
+  end
+
+  # Use Vagrant Ansible Local provisioner
+  config.vm.provision "ansible_local" do |ansible|
+    # Install the latest Ansible version
+    ansible.install_mode = "pip"
+    ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/get-pip.py | sudo python3" # install PIP with python3
+    ansible.version = "latest"
+    # The path to the playbooks entry point
+    ansible.playbook = "playbooks/run.yml"
+    # Only run the roles with these tags
+    ansible.tags = "install"
+  end
+
+end

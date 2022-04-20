@@ -1,0 +1,7 @@
+---
+- hosts: userapi_server
+  # Roles to be executed on these hosts
+  become: yes
+  roles:
+  - role: node/install
+    tags: install
